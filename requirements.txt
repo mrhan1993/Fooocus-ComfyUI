@@ -1,0 +1,24 @@
+celery
+httpx
+requests
+pycuda
+numpy
+redis
+fastapi
+uvicorn
+
+# windows needed
+# eventlet
+
+# 存储相关依赖，可以根据选择安装
+oss2
+cos-python-sdk-v5
+
+# 翻译相关依赖，可以根据选择安装
+nltk
+tencentcloud-sdk-python
+alibabacloud_alimt20181012
+
+# LLM 相关依赖
+openai
+dashscope
