@@ -6,8 +6,6 @@ from pydantic import (
     Field
 )
 
-from modules.async_worker import AsyncTask
-
 
 class Lora(BaseModel):
     """Common params lora model"""
@@ -113,11 +111,3 @@ class DescribeImageResponse(BaseModel):
     describe image response
     """
     describe: str
-
-
-class CurrentTask:
-    """
-    Current task class.
-    """
-    ct = None
-    task: AsyncTask = None

@@ -1,32 +1,43 @@
-import math
-
-
-def calculate_weight(memory_gb: int, tflops: float, num_tasks: int,
-                     base_tflops: float = 1.0, alpha=1.0, beta=1.0, gamma=1.5) -> float:
+def filter_hosts(hosts: list[dict], conditions: dict) -> list[dict]:
     """
-    计算主机权重
-    :param memory_gb: 显存大小（GB）
-    :param tflops: 主机计算性能（TFlops）
-    :param num_tasks: 当前运行的任务数量
-    :param base_tflops: 集群中基准 TFlops（最低性能）
-    :param alpha: 显存权重系数
-    :param beta: TFlops 权重系数
-    :param gamma: 任务数量权重系数
-    :return: 主机权重
+    根据给定的条件筛选主机列表，返回符合条件的主机列表。
+    挑选逻辑：
+        - 指定 host_name 或者 host_ip 将直接选择对应主机，忽略其他条件
+        - 主机属性或者筛选条件的值为 0 或者空值表示无条件匹配
+        - 给定的筛选规则为逻辑与
+    :param conditions: 筛选条件
+    :param hosts: 主机列表
     """
+    # 检查是否提供了 host_name 或 host_ip
+    if 'host_name' in conditions:
+        for host in hosts:
+            if host['host_name'] == conditions['host_name']:
+                return [host]
+    elif 'host_ip' in conditions:
+        for host in hosts:
+            if host['host_ip'] == conditions['host_ip']:
+                return [host]
 
-    # 显存权重计算
-    if memory_gb < 8:
-        memory_weight = 1
-    else:
-        memory_weight = 1 + math.log2(memory_gb / 8)
+    # 如果没有提供 host_name 或 host_ip，则根据其他条件筛选
+    filtered_hosts = []
+    for host in hosts:
+        match = True
+        for key, value in conditions.items():
+            if key in ['video_ram', 'memory', 'cpu_cores', 'flops']:
+                if value != 0 and host[key] != 0 and host[key] < value:
+                    match = False
+                    break
+            elif key == 'gpu_model':
+                if value != "" and host[key] != "":
+                    if host[key] != value:
+                        match = False
+                        break
+            elif key == 'labels':
+                if value != {} and host[key] != {}:
+                    if not all(item in host[key].items() for item in value.items()):
+                        match = False
+                        break
+        if match:
+            filtered_hosts.append(host)
 
-    # TFlops 权重计算
-    tflops_weight = tflops / base_tflops
-
-    # 任务数量权重计算
-    # task_weight = 1 / (1 + num_tasks)
-
-    # 总权重计算
-    total_weight = alpha * memory_weight + beta * tflops_weight - gamma * num_tasks
-    return total_weight
+    return filtered_hosts

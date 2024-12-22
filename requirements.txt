@@ -6,19 +6,21 @@ numpy
 redis
 fastapi
 uvicorn
+sqlalchemy
+pydantic
 
 # windows needed
 # eventlet
 
-# 存储相关依赖，可以根据选择安装
+# Store related dependencies, can be installed according to selection
 oss2
 cos-python-sdk-v5
 
-# 翻译相关依赖，可以根据选择安装
+# Translate related dependencies, can be installed according to the selection
 nltk
 tencentcloud-sdk-python
 alibabacloud_alimt20181012
 
-# LLM 相关依赖
+# LLM related dependencies
 openai
 dashscope
