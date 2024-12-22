@@ -5,47 +5,55 @@ import os
 class Logger:
     def __init__(self, log_name: str,
                  log_dir: str = 'logs',
-                 log_format = "%(asctime)s - %(levelname)s - %(message)s"):
+                 log_format="%(asctime)s - %(levelname)s - %(message)s"):
         """
         :param log_name: 日志文件名
         :param log_dir: 日志文件存放目录
         :param log_format: 日志格式
         """
-        os.makedirs(log_dir, exist_ok=True)
-        logger = logging.getLogger(log_name)
-        logger.setLevel("INFO")
+        try:
+            os.makedirs(log_dir, exist_ok=True)
+        except Exception as e:
+            raise RuntimeError(f"Failed to create log directory {log_dir}: {e}")
 
-        # 创建一个ERROR级别的handler，将日志记录到error.log文件中
-        error_handler = logging.FileHandler(log_dir + '/' + log_name + '_error.log', encoding='utf-8')
-        error_handler.setLevel(logging.ERROR)
+        self.logger = logging.getLogger(log_name)
+        self.logger.setLevel(logging.DEBUG)  # Set to DEBUG to capture all levels
 
-        # 创建一个WARNING级别的handler，将日志记录到warning.log文件中
-        warning_handler = logging.FileHandler(log_dir + '/' + log_name + '_warning.log', encoding='utf-8')
-        warning_handler.setLevel(logging.WARNING)
-
-        # 创建一个INFO级别的handler，将日志记录到info.log文件中
-        info_handler = logging.FileHandler(log_dir + '/' + log_name + '_info.log', encoding='utf-8')
-        info_handler.setLevel(logging.INFO)
+        # Define handlers and their corresponding log levels and filenames
+        handlers = {
+            logging.ERROR: f"{log_name}_error.log",
+            logging.WARNING: f"{log_name}_warning.log",
+            logging.INFO: f"{log_name}_info.log"
+        }
 
         formatter = logging.Formatter(log_format)
-        error_handler.setFormatter(formatter)
-        warning_handler.setFormatter(formatter)
-        info_handler.setFormatter(formatter)
 
-        # 将handler添加到logger中
-        logger.addHandler(error_handler)
-        logger.addHandler(info_handler)
-        logger.addHandler(warning_handler)
-        self.logger = logger
-    
-    def error(self, log):
-        self.logger.error(log)
+        for level, filename in handlers.items():
+            handler = logging.FileHandler(os.path.join(log_dir, filename), encoding='utf-8')
+            handler.setLevel(level)
+            handler.setFormatter(formatter)
 
-    def info(self, log):
-        self.logger.info(log)
+            # Add a filter to ensure that only messages of the exact level are logged
+            class ExactLevelFilter(logging.Filter):
+                def __init__(self, log_level):
+                    super().__init__()
+                    self.level = log_level
 
-    def warning(self, log):
-        self.logger.warning(log)
+                def filter(self, record):
+                    return record.levelno == self.level
+
+            handler.addFilter(ExactLevelFilter(level))
+
+            self.logger.addHandler(handler)
+
+    def error(self, message):
+        self.logger.error(message)
+
+    def info(self, message):
+        self.logger.info(message)
+
+    def warning(self, message):
+        self.logger.warning(message)
 
 
 common_logger = Logger('common')

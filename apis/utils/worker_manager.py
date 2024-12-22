@@ -2,7 +2,7 @@ import json
 
 import redis
 from configs.celery_conf import broker_url
-from apis.models.remote_host import RemoteHost
+from apis.models.remote_host import RemoteHost, RemoteHosts
 from tools.logger import common_logger
 
 
@@ -20,21 +20,34 @@ class WorkerManager:
             common_logger.error(f"[Common] 添加/更新主机 {remote_host.host_name} 失败，错误信息为：{e}")
             return {"host": remote_host.model_dump(), "result": False}
 
-    def get_workers(self, host_name: str = "all") -> list[dict]:
+    def get_workers(self, host_name: str = "all") -> RemoteHosts:
+        """
+        Get worker.
+        :param host_name: Get host for given name, 'all' for all
+        :return: A list of workers.
+        """
         if host_name != "all":
             res = self.__conn.hget("workers", host_name)
             if res is None:
-                return []
-            return [json.loads(self.__conn.hget("workers", host_name).decode())]
+                return RemoteHosts(hosts=[])
+            host = json.loads(self.__conn.hget("workers", host_name).decode())
+            RemoteHost(**host)
+            return RemoteHosts(hosts=[host])
         hosts = []
         res = self.__conn.hgetall("workers")
         for k, v in res.items():
             hosts.append(json.loads(v.decode()))
-        return hosts
+        return RemoteHosts(hosts=hosts)
 
     def remove_worker(self, host_name: str) -> bool:
+        """
+        Remove worker by name, if not exist, return True
+        :param host_name: host_name
+        :return: True or False
+        """
         try:
             self.__conn.hdel("workers", host_name)
+            common_logger.info(f"[Common] 删除主机 {host_name} 成功")
             return True
         except Exception as e:
             common_logger.error(f"[Common] 删除主机 {host_name} 失败，错误信息为：{e}")

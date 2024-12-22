@@ -7,6 +7,7 @@ Include routes based on fooocus
     - image enhance
 """
 from fastapi import APIRouter
+from works.run_tasks.tasks import run_task
 
 from apis.models.requests import (
     CommonRequest,
@@ -25,7 +26,7 @@ fooocus_router = APIRouter()
     tags=["Fooocus"])
 async def text_to_image(request: CommonRequest):
     """Text to image"""
-    return request
+    return run_task.delay(request, 'fooocus').id
 
 @fooocus_router.post(
     path="/apis/v1/fooocus/image-upscale-vary",
@@ -33,7 +34,7 @@ async def text_to_image(request: CommonRequest):
     tags=["Fooocus"])
 async def upscale_vary(request: UpscaleVary):
     """Upscale or vary"""
-    return request
+    return run_task.delay(request, 'fooocus').id
 
 @fooocus_router.post(
     path="/apis/v1/fooocus/inpaint-outpaint",
@@ -41,7 +42,7 @@ async def upscale_vary(request: UpscaleVary):
     tags=["Fooocus"])
 async def inpaint_outpaint(request: InpaintOutpaint):
     """Inpaint outpaint"""
-    return request
+    return run_task.delay(request, 'fooocus').id
 
 @fooocus_router.post(
     path="/apis/v1/fooocus/image-prompt",
@@ -49,7 +50,7 @@ async def inpaint_outpaint(request: InpaintOutpaint):
     tags=["Fooocus"])
 async def image_prompt(request: ImagePrompt):
     """Image Prompt"""
-    return request
+    return run_task.delay(request, 'fooocus').id
 
 @fooocus_router.post(
     path="/apis/v1/fooocus/image-enhance",
@@ -57,4 +58,4 @@ async def image_prompt(request: ImagePrompt):
     tags=["Fooocus"])
 async def image_enhance(request: ImageEnhance):
     """Image Enhance"""
-    return request
+    return run_task.delay(request, 'fooocus').id

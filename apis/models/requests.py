@@ -12,6 +12,7 @@ from apis.models.base import (
     UpscaleOrVaryMethod,
     OutpaintExpansion
 )
+from apis.models.remote_host import RemoteHost
 
 
 loras = []
@@ -77,6 +78,14 @@ class CommonRequest(BaseModel):
     freeu_s2: float = Field(default=0.95, description="Freeu S2")
 
     preset: str = Field(default='initial', description="Presets")
+
+    filter_hosts: RemoteHost = Field(
+        default=RemoteHost(
+            host_name='',
+            host_ip='',
+            video_ram=8192,
+            labels={}
+        ), description="Filter Hosts")
 
 
 
