@@ -5,7 +5,7 @@ Config for project.
 # [Celery]
 # celery 配置文件 https://docs.celeryq.dev/en/stable/userguide/configuration.html
 broker_url = 'redis://:86WCqsULA2UuwZg@10.0.0.125:6379/0'
-result_backend = 'db+mysql://root:86WCqsULA2UuwZg@10.0.0.125:3306/celeryResults'
+result_backend = 'db+mysql://root:86WCqsULA2UuwZg@10.0.0.125:3306/celery_results'
 
 task_serializer = 'json'
 result_serializer = 'json'

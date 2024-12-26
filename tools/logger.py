@@ -2,6 +2,7 @@ import logging
 import os
 
 
+ROOT_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 class Logger:
     def __init__(self, log_name: str,
                  log_dir: str = 'logs',
@@ -11,6 +12,7 @@ class Logger:
         :param log_dir: 日志文件存放目录
         :param log_format: 日志格式
         """
+        log_dir = os.path.join(ROOT_DIR, log_dir)
         try:
             os.makedirs(log_dir, exist_ok=True)
         except Exception as e:

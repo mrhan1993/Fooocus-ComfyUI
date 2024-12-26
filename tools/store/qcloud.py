@@ -1,10 +1,11 @@
 """腾讯云 OSS 客户端"""
 from qcloud_cos import CosConfig, CosS3Client
+from apis.models.settings import OssSetting
 from tools.logger import common_logger
 
 
 class QcloudOssClient:
-    def __init__(self, config: dict) -> None:
+    def __init__(self, config: OssSetting) -> None:
         """初始化腾讯云OSS客户端
         :param config: 配置文件，应该包含以下字段
             access_key_id: 腾讯云的secret_id
@@ -12,17 +13,14 @@ class QcloudOssClient:
             bucket: OSS的bucket名称
             region: OSS的区域，如 ap-shanghai
         """
-        required_keys = ['access_key_id', 'access_key_secret', 'bucket', 'region']
-        for key in required_keys:
-            if key not in config:
-                common_logger.error(f"[QCloud OSS] Missing required key: {key}")
-                raise ValueError(f"Missing required key: {key}")
-        self.__bucket = config['bucket']
-        ak_id = config['access_key_id']
-        ak_secret = config['access_key_secret']
-        region = config['region']
-        config = CosConfig(Region=region, SecretId=ak_id, SecretKey=ak_secret)
-        self.__client = CosS3Client(config)
+        self.__config = config
+        self.__bucket = config.bucket
+        try:
+            cos_config = CosConfig(Region=config.region, SecretId=config.access_key_id, SecretKey=config.access_key_secret)
+            self.__client = CosS3Client(cos_config)
+            common_logger.info("[QCloud OSS] Successfully initialized QCloud OSS client")
+        except Exception as e:
+            common_logger.error(f"[QCloud OSS] Failed to initialize QCloud OSS client: {e}")
 
     def upload_file(self, file_path: str | bytes, object_name: str) -> bool:
         """上传文件
@@ -62,6 +60,7 @@ class QcloudOssClient:
             )
             return True
         except Exception as e:
+            common_logger.error(f"[QCloud OSS] Failed to delete file: {e}")
             return False
 
     def get_file(self, object_name: str) -> str:
@@ -76,4 +75,5 @@ class QcloudOssClient:
                 Expired=3600
             )
         except Exception as e:
+            common_logger.error(f"[QCloud OSS] Failed to get file url: {e}")
             return ""

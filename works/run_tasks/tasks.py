@@ -1,10 +1,7 @@
-import json
-import os
-
-from tools.scheduler.scheduler import filter_hosts
-from works.main import app
-from tools.logger import common_logger
 from apis.utils.worker_manager import manager
+from tools.scheduler.scheduler import filter_hosts
+from workflows.read_workflow import Workflow
+from works.main import app
 
 
 @app.task()
@@ -20,4 +17,8 @@ def run_task(
     """
     hosts = manager.get_workers().hosts
     exec_hosts = filter_hosts(hosts, params.filter_hosts)
-    return {}
+    if len(exec_hosts) == 0:
+        return {"status": "Failed", "msg": "There is no host available for the execution of the task."}
+
+    workflow = Workflow(params, task_type, exec_hosts)
+    return workflow.run_task()

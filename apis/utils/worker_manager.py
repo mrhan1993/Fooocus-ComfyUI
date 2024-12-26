@@ -8,8 +8,7 @@ from tools.logger import common_logger
 
 class WorkerManager:
     def __init__(self):
-        conn = redis.Redis.from_url(broker_url)
-        self.__conn = conn
+        self.__conn = redis.Redis.from_url(broker_url)
 
     def add_update_worker(self, remote_host: RemoteHost) -> dict:
         try:

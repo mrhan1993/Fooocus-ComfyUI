@@ -8,6 +8,9 @@ fastapi
 uvicorn
 sqlalchemy
 pydantic
+passlib[bcrypt]
+python-jose[cryptography]
+sqlmodel
 
 # windows needed
 # eventlet
@@ -17,10 +20,13 @@ oss2
 cos-python-sdk-v5
 
 # Translate related dependencies, can be installed according to the selection
-nltk
+# nltk
+langdetect
 tencentcloud-sdk-python
 alibabacloud_alimt20181012
 
 # LLM related dependencies
 openai
-dashscope
+#dashscope
+zhipuai
+#volcengine-python-sdk

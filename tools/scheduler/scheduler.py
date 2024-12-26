@@ -10,6 +10,7 @@ def filter_hosts(hosts: list[RemoteHost], conditions: RemoteHost) -> list[Remote
         - 给定的筛选规则为逻辑与
     :param conditions: 筛选条件
     :param hosts: 主机列表
+    :return: 返回一个初步筛选的主机列表
     """
     # 检查是否提供了 host_name 或 host_ip
     conditions = conditions.model_dump()

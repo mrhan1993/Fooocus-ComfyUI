@@ -1,10 +1,11 @@
 """阿里云 OSS 客户端"""
 import oss2
+from apis.models.settings import OssSetting
 from tools.logger import common_logger
 
 
 class AliyunOssClient:
-    def __init__(self, config: dict) -> None:
+    def __init__(self, config: OssSetting) -> None:
         """初始化阿里云OSS客户端
         :param config: 配置文件，应该包含以下字段
             endpoint: OSS的endpoint，如 oss-cn-beijing.aliyuncs.com
@@ -13,23 +14,18 @@ class AliyunOssClient:
             bucket: OSS的bucket名称
             region: OSS的区域，如 cn-beijing
         """
-        required_keys = ['endpoint', 'access_key_id', 'access_key_secret', 'bucket', 'region']
-        for key in required_keys:
-            if key not in config:
-                common_logger.error(f"[AliyunOss] Missing required key: {key}")
-                raise ValueError(f"Missing required key: {key}")
-        endpoint = config['endpoint']
-        ak_id = config['access_key_id']
-        ak_secret = config['access_key_secret']
-        bucket = config['bucket']
-        region = config['region']
-        auth = oss2.Auth(ak_id, ak_secret)
-        self.__bucket = oss2.Bucket(
-            auth=auth,
-            endpoint=endpoint,
-            bucket_name=bucket,
-            region=region
-        )
+        self.__config = config
+        try:
+            auth = oss2.Auth(config.access_key_id, config.access_key_secret)
+            self.__bucket = oss2.Bucket(
+                auth=auth,
+                endpoint=config.endpoint,
+                bucket_name=config.bucket,
+                region=config.region
+            )
+            common_logger.info(f"[AliyunOss] init success")
+        except Exception as e:
+            common_logger.error(f"[AliyunOss] init failed: {e}")
 
     def upload_file(self, file_path: str | bytes, object_name: str) -> bool:
         """上传文件

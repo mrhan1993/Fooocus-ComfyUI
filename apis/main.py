@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from apis.routes.fooocus import fooocus_router
 from apis.routes.query import query_route
+# from apis.routes.users import user_route
 
 
 app = FastAPI()
@@ -17,3 +18,4 @@ app.add_middleware(
 
 app.include_router(fooocus_router)
 app.include_router(query_route)
+# app.include_router(user_route)

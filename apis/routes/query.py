@@ -2,7 +2,9 @@ from fastapi import APIRouter
 
 from celery.result import AsyncResult
 from apis.models.remote_host import RemoteHosts
+from apis.models.settings import Settings
 from apis.utils.worker_manager import manager
+from apis.utils.setting import setting_manager
 
 
 query_route = APIRouter()
@@ -41,3 +43,19 @@ async def get_workers(host_name: str = "all") -> RemoteHosts:
 )
 async def remove_worker(host_name: str) -> bool:
     return manager.remove_worker(host_name)
+
+@query_route.get(
+    path="/apis/v1/save_setting",
+    summary="Save setting to the system",
+    tags=["Setting"]
+)
+async def save_setting(settings: Settings) -> bool:
+    return setting_manager.add_update_setting(settings)
+
+@query_route.get(
+    path="/apis/v1/get_setting",
+    summary="Get setting from the system",
+    tags=["Setting"]
+)
+async def get_setting(setting_id: str) -> Settings:
+    return setting_manager.get_setting(setting_id)

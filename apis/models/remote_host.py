@@ -17,5 +17,8 @@ class RemoteHost(BaseModel):
     flops: float = Field(default=0.0, description="Flops, M")
     labels: dict = Field(default={}, description="Tags")
 
+    class Config:
+        extra = "allow"
+
 class RemoteHosts(BaseModel):
     hosts: List[RemoteHost] = Field(default=[], description="Hosts")
