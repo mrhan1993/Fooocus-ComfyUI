@@ -88,14 +88,17 @@ class CommonRequest(BaseModel):
         ), description="Filter Hosts")
 
 
+class ImagePrompt(CommonRequest):
+    controlnet_image: List[ImagePrompt] = Field(default=[ImagePrompt()], description="ControlNet Image Prompt")
 
-class UpscaleVary(CommonRequest):
+
+class UpscaleVary(ImagePrompt):
     uov_method: UpscaleOrVaryMethod = Field(default=UpscaleOrVaryMethod.disable, description="Upscale or Vary Method")
     uov_input_image: StrictStr | None = Field(default="None", description="Upscale or Vary Input Image")
     upscale_multiple: float = Field(default=1.0, ge=1.0, le=5.0, description="Upscale Rate, use only when uov_method is 'Upscale (Custom)'")
 
 
-class InpaintOutpaint(CommonRequest):
+class InpaintOutpaint(ImagePrompt):
     inpaint_input_image: StrictStr | None = Field(default="None", description="Inpaint Input Image")
     inpaint_additional_prompt: StrictStr = Field(default="", description="Additional prompt for inpaint")
     inpaint_mask_image_upload: str | None = Field(default="None", description="Inpaint Mask Image Upload")
@@ -120,10 +123,6 @@ class InpaintOutpaint(CommonRequest):
     inpaint_erode_or_dilate: int = Field(default=0, ge=-64, le=64, description="Inpaint Erode or Dilate")
 
 
-class ImagePrompt(CommonRequest):
-    controlnet_image: List[ImagePrompt] = Field(default=[ImagePrompt()], description="ControlNet Image Prompt")
-
-
 class ImageEnhance(CommonRequest):
     enhance_input_image: str | None = Field(default="None", description="Enhance Input Image")
     enhance_checkbox: bool = Field(default=False, description="Enhance Checkbox")
@@ -133,7 +132,6 @@ class ImageEnhance(CommonRequest):
     enhance_ctrls: List[EnhanceCtrlNets] = Field(default=[], description="Enhance Control Nets")
     debugging_dino: bool = Field(default=False, description="Debugging DINO")
     dino_erode_or_dilate: int = Field(default=0, ge=-64, le=64, description="DINO Erode or Dilate")
-
 
 
 class DescribeImageRequest(BaseModel):

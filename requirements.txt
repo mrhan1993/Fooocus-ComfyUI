@@ -11,6 +11,7 @@ pydantic
 passlib[bcrypt]
 python-jose[cryptography]
 sqlmodel
+websocket-client
 
 # windows needed
 # eventlet

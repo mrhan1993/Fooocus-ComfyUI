@@ -2,26 +2,22 @@ import uuid
 from datetime import datetime
 from typing import Any
 
+from apis.models.settings import OssSetting
 from tools.utils import GlobalMemory
 from apis.utils.img_utils import (
     base64_to_bytesimg,
     get_ext_from_bytes
 )
 from tools.store.oss_client import OssClient
-from configs.store_conf import (
-    service_type,
-    store_config
-)
 
 
 memory = GlobalMemory()
-client = OssClient(service_type, store_config)
 
 
 class PreProcess:
-    def __init__(self):
+    def __init__(self, oss_config: OssSetting):
         self.__memory = memory
-        self.__client = client
+        self.__oss = OssClient(oss_config)
 
     def translate(self, params: Any) -> Any:
         """
@@ -66,7 +62,7 @@ class PreProcess:
                 remote_file_name = uuid.uuid4().hex
                 remote_path = f"{today}/{remote_file_name}.{ext}"
                 # 上传文件到 oss
-                res = self.__client.upload_file(decoded_bytes, remote_path)
+                res = self.__oss.upload_file(decoded_bytes, remote_path)
                 if res:
                     memory.set(remote_file_name, params)
                     image_map_list.append(remote_file_name)
