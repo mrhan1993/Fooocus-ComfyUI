@@ -1,13 +1,17 @@
 import json
 import os
+import uuid
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
 from functools import partial
 
 from apis.models.remote_host import RemoteHost
-from apis.models.settings import OssSetting
+from apis.models.settings import Settings
+from apis.utils.img_utils import get_ext_from_bytes
 from apis.utils.pre_process import PreProcess
 from tools.execute import Execute
 from tools.logger import common_logger
+from tools.store.oss_client import OssClient
 from tools.utils import get_host_status
 from workflows.fooocus.map_rule import fooocus_mapping
 from workflows.fooocus.mapping import mapped_workflow, post_mapped_fooocus
@@ -21,18 +25,19 @@ class Workflow:
             self,
             params: object,
             task_type: str,
-            oss_conf: OssSetting,
+            setting: Settings,
             exec_hosts: list[RemoteHost]
         ):
         """
         初始化一个工作流对象
         :param params: 请求参数对象
         :param task_type: 任务类型，用来选择要执行的工作流, fooocus
-        :param oss_conf: Oss 客户端配置
+        :param setting: setting 对象
         :param exec_hosts: 符合条件的主机列表
         """
+        self.__setting = setting
         cur_dir = os.path.dirname(__file__)
-        self.__pre_process = PreProcess(oss_conf)
+        self.__pre_process = PreProcess(self.__setting)
         self.params = params
         self.task_type = task_type
         self.exec_hosts = exec_hosts
@@ -71,6 +76,34 @@ class Workflow:
         return min(exec_host, key=lambda x: x.queue.get("queue_pending"))
 
 
+    def __post_upload(self, results: list) -> list:
+        """
+        上传结果
+        :param results: 执行结果
+        :return: 上传结果
+        """
+        images = []
+        today = datetime.now().strftime("%Y%m%d")
+
+        oss_client = OssClient(self.__setting.oss)
+        for result in results:
+            if result is None or result.get("status") == "error":
+                continue
+            image = result.get("image")
+            file_name = uuid.uuid4().hex
+            try:
+                ext = get_ext_from_bytes(image)
+                object_name = f"outputs/{today}/{file_name}.{ext}"
+                oss_client.upload_file(image, object_name)
+                images.append(object_name)
+            except Exception as e:
+                common_logger.error(f"[Execute] 上传结果失败，错误信息为：{e}")
+
+        return images
+
+
+
+
     def run_task(self):
         parsed_param = self.__parse_param()
         workflow = parsed_param.get("workflow")
@@ -88,9 +121,10 @@ class Workflow:
             :return: 执行结果
             """
             try:
-                execute = Execute(server_address=self.__get_exec_hosts().host_ip)
-                execute.execute(task)
-                return {"status": "success", "message": "任务执行成功"}
+                host = self.__get_exec_hosts()
+                execute = Execute(server_address=f"{host.host_ip}:{host.host_port}")
+                image = execute.execute(task)
+                return {"status": "success", "message": "任务执行成功", "image": image}
             except Exception as e:
                 if retries < max_retries:
                     common_logger.warning(f"[Execute] 任务失败，正在重试 ({retries + 1}/{max_retries})，错误信息为：{e}")
@@ -109,15 +143,15 @@ class Workflow:
 
         self.__pre_process.clean_memory(image_map_list)
 
-        if any(result.get("status") == "error" for result in results):
+        if any(result is None for result in results):
             return {
                 "status": "error",
                 "message": "部分任务执行失败",
-                "results": results
+                "results": self.__post_upload(results)
             }
 
         return {
-            "status": "success",
+            "status": "finished",
             "message": "所有任务执行成功",
-            "results": results
+            "results": self.__post_upload(results)
         }

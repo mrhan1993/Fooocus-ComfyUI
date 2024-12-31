@@ -13,6 +13,21 @@ import websocket
 from tools.logger import common_logger
 
 
+
+class WebSocketManager:
+    def __init__(self, url):
+        self.url = url
+        self.ws_client = None
+
+    def __enter__(self):
+        self.ws_client = websocket.create_connection(self.url)
+        return self.ws_client
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.ws_client:
+            self.ws_client.close()
+
+
 class Execute:
     def __init__(self, server_address: str, client_id: str = str(uuid.uuid4())):
         """
@@ -69,12 +84,12 @@ class Execute:
         except Exception as e:
             common_logger.error(f"[Execute] Error getting history: {e}")
 
-    def get_images(self, ws: websocket.WebSocket, prompt: Dict) -> Dict:
+    def get_images(self, ws: websocket.WebSocket, prompt: Dict) -> bytes | None:
         """
         Get images from the WebSocket connection.
         :param ws: The WebSocket connection.
         :param prompt: The prompt to execute.
-        :return: A dictionary of node names to lists of image data.
+        :return: image bytes or None if an error occurred
         """
         prompt_id = self.queue_prompt(prompt)['prompt_id']
         output_images = {}
@@ -92,22 +107,28 @@ class Execute:
                                 break  # Execution is done
                             current_node = data['node']
                 elif current_node == 'save_image_websocket_node':
-                    output_images[current_node].append(out[8:])
+                    images_output = output_images.get(current_node, [])
+                    images_output.append(out[8:])
+                    output_images[current_node] = images_output
             except Exception as e:
                 common_logger.error(f"[Execute] WebSocket error: {e}")
-                break
-        return output_images
+                return None
+        try:
+            return output_images['save_image_websocket_node'][0]
+        except Exception as e:
+            common_logger.error(f"[Execute] Error getting image: {e}")
+            return None
 
-    def execute(self, workflow: Dict) -> Dict:
+    def execute(self, workflow: Dict) -> bytes | None:
         """
         Run a workflow and get the resulting images.
         :param workflow: The workflow to execute.
-        :return: A dictionary of node names to lists of image data.
+        :return: image bytes or None if an error occurred
         """
         ws_url = f"ws://{self.server_address}/ws?clientId={self.client_id}"
         try:
-            with websocket.create_connection(ws_url) as ws_client:
+            with WebSocketManager(ws_url) as ws_client:
                 return self.get_images(ws_client, workflow)
         except Exception as e:
             common_logger.error(f"[Execute] WebSocket error: {e}")
-            return {}
+            return None

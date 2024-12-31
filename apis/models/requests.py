@@ -12,8 +12,7 @@ from apis.models.base import (
     UpscaleOrVaryMethod,
     OutpaintExpansion
 )
-from apis.models.remote_host import RemoteHost
-
+from apis.models.remote_host import RemoteHost, FilterHost
 
 loras = []
 for i in range(5):
@@ -79,8 +78,8 @@ class CommonRequest(BaseModel):
 
     preset: str = Field(default='initial', description="Presets")
 
-    filter_hosts: RemoteHost = Field(
-        default=RemoteHost(
+    filter_hosts: FilterHost = Field(
+        default=FilterHost(
             host_name='',
             host_ip='',
             video_ram=8192,

@@ -1,7 +1,5 @@
 import json
-import os
 
-import pycuda.driver as cuda
 import requests
 
 from apis.models.remote_host import RemoteHost
@@ -80,12 +78,9 @@ def get_host_status(hosts: list[RemoteHost]) -> list[RemoteHost]:
     results = []
     for host in hosts:
         url = f"http://{host.host_ip}:{host.host_port}"
-        # state_url = f"{url}{state_endpoint}"
         queue_url = f"{url}{queue_endpoint}"
         try:
-            # state_response = requests.get(state_url)
             queue_response = requests.get(queue_url)
-            # state = json.loads(state_response.text)
             queue = json.loads(queue_response.text)
 
             host.queue = {

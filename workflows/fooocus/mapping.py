@@ -1,4 +1,5 @@
 import random
+from enum import Enum
 
 
 def mapped_workflow(workflow: dict, requests: dict, mapping: dict) -> dict:
@@ -30,6 +31,8 @@ def mapped_workflow(workflow: dict, requests: dict, mapping: dict) -> dict:
                 v = "enabled"
             if isinstance(v, bool) and not v:
                 v = "disable"
+            if isinstance(v, Enum):
+                v = v.value
             set_nested_value(workflow, key_workflow, v)
     return workflow
 
@@ -45,7 +48,7 @@ def post_mapped_fooocus(workflow: dict) -> dict:
     workflow["36"]["inputs"]["style_selections"] = ", ".join(style_section) if len(style_section) > 0 else ""
 
     if workflow["42"]["inputs"]["seed"] == -1:
-        workflow["42"]["inputs"]["seed"] = random.randint(0, 2 ** 64 - 1)
+        workflow["42"]["inputs"]["seed"] = random.randint(0, 2 ** 32 - 1)
 
     try:
         workflow["25"]["inputs"]["outpaint_left"] = "enable" if "Left" in workflow["25"]["inputs"]["outpaint_left"] else "disable"
@@ -59,6 +62,6 @@ def post_mapped_fooocus(workflow: dict) -> dict:
 
         workflow["25"]["inputs"]["outpaint_bottom"] = "enable" if "Bottom" in workflow["25"]["inputs"]["outpaint_bottom"] else "disable"
         workflow["25"]["inputs"]["outpaint_bottom_distance"] = workflow["25"]["inputs"]["outpaint_bottom_distance"][3]
-    except KeyError:
+    except Exception:
         pass
     return workflow

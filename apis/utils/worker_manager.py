@@ -11,6 +11,11 @@ class WorkerManager:
         self.__conn = redis.Redis.from_url(broker_url)
 
     def add_update_worker(self, remote_host: RemoteHost) -> dict:
+        """
+        Add or update worker.
+        :param remote_host: RemoteHost object
+        :return: {"host": RemoteHost, "result": True} or {"host": RemoteHost, "result": False}
+        """
         try:
             res = self.__conn.hset("workers", remote_host.host_name, remote_host.model_dump_json())
             common_logger.info(f"[Common] 添加/更新主机 {remote_host.host_name} 成功，结果为：{res}")
@@ -36,7 +41,7 @@ class WorkerManager:
         res = self.__conn.hgetall("workers")
         for k, v in res.items():
             hosts.append(json.loads(v.decode()))
-        return RemoteHosts(hosts=hosts)
+        return RemoteHosts(**{"hosts": hosts})
 
     def remove_worker(self, host_name: str) -> bool:
         """

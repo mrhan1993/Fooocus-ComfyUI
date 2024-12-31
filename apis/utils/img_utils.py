@@ -19,7 +19,7 @@ from fastapi import UploadFile
 def get_ext_from_bytes(file_bytes: bytes) -> str:
     image_type = imghdr.what(None, h=file_bytes)
     if image_type:
-        return f".{image_type}"
+        return f"{image_type}"
     else:
         return "png"
 

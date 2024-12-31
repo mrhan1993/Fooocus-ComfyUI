@@ -1,7 +1,7 @@
-from apis.models.remote_host import RemoteHost
+from apis.models.remote_host import RemoteHost, FilterHost, RemoteHosts
 
 
-def filter_hosts(hosts: list[RemoteHost], conditions: RemoteHost) -> list[RemoteHost]:
+def filter_hosts(hosts: RemoteHosts, conditions: FilterHost) -> list[RemoteHost]:
     """
     根据给定的条件筛选主机列表，返回符合条件的主机列表。
     挑选逻辑：
@@ -15,31 +15,32 @@ def filter_hosts(hosts: list[RemoteHost], conditions: RemoteHost) -> list[Remote
     # 检查是否提供了 host_name 或 host_ip
     conditions = conditions.model_dump()
     if 'host_name' in conditions:
-        for host in hosts:
+        for host in hosts.hosts:
             if host.host_name == conditions['host_name']:
                 return [host]
     elif 'host_ip' in conditions:
-        for host in hosts:
+        for host in hosts.hosts:
             if host.host_ip == conditions['host_ip']:
                 return [host]
 
     # 如果没有提供 host_name 或 host_ip，则根据其他条件筛选
     filtered_hosts = []
-    for host in hosts:
+    for host in hosts.hosts:
         match = True
         for key, value in conditions.items():
             if key in ['video_ram', 'memory', 'cpu_cores', 'flops']:
-                if value != 0 and host.key != 0 and host.key < value:
+                if value != 0 and getattr(host, key) != 0 and getattr(host, key) < value:
                     match = False
                     break
             elif key == 'gpu_model':
-                if value != "" and host.key != "":
+                if value != "" and host.gpu_model != "":
                     if host.key != value:
                         match = False
                         break
             elif key == 'labels':
-                if value != {} and host.key != {}:
-                    if not all(item in host.key.items() for item in value.items()):
+                # if value != {} and host.labels != {}:
+                if value != {}:
+                    if not all(item in host.labels.items() for item in value.items()):
                         match = False
                         break
         if match:
