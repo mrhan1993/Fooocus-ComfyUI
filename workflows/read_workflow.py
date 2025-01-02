@@ -53,7 +53,13 @@ class Workflow:
         把参数解析到 workflow 中
         :return:
         """
-        parsed_params, image_map_list = self.__pre_process.pre_process(self.params)
+        # parsed_params, image_map_list = self.__pre_process.pre_process(self.params)
+        translated_params = self.__pre_process.translate(self.params)
+        parsed_params = self.__pre_process.optimize_prompt(translated_params)
+
+        uploaded_params, image_map_list = self.__pre_process.upload_images(parsed_params, [])
+
+        image_number = parsed_params.get("image_number")
         parsed_params["image_number"] = 1
         if self.task_type == "fooocus":
             workflow = post_mapped_fooocus(mapped_workflow(self.flow, parsed_params, fooocus_mapping))
@@ -64,7 +70,8 @@ class Workflow:
         return {
             "workflow": workflow,
             "image_map_list": image_map_list,
-            "image_number": parsed_params.get("image_number"),
+            "image_number": image_number,
+            "uploaded_params": uploaded_params
         }
 
     def __get_exec_hosts(self) -> RemoteHost:
@@ -102,13 +109,12 @@ class Workflow:
         return images
 
 
-
-
     def run_task(self):
         parsed_param = self.__parse_param()
         workflow = parsed_param.get("workflow")
         image_map_list = parsed_param.get("image_map_list")
         image_number = parsed_param.get("image_number")
+        uploaded_params = parsed_param.get("uploaded_params")
         tasks = [workflow.copy() for _ in range(image_number)]
 
 
@@ -147,11 +153,13 @@ class Workflow:
             return {
                 "status": "error",
                 "message": "部分任务执行失败",
+                "request": uploaded_params,
                 "results": self.__post_upload(results)
             }
 
         return {
             "status": "finished",
             "message": "所有任务执行成功",
+            "request": uploaded_params,
             "results": self.__post_upload(results)
         }

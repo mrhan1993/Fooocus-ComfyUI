@@ -3,7 +3,7 @@ Image process utils. Used to verify, convert and store Images.
 
 @file: img_utils.py
 @author: Konie
-@update: 2024-03-23
+@update: 2025-01-01
 """
 import base64
 import hashlib

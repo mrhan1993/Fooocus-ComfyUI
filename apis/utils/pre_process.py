@@ -1,3 +1,4 @@
+import json
 import uuid
 from datetime import datetime
 from io import BytesIO
@@ -30,6 +31,8 @@ class PreProcess:
         :return: The pre-processed parameters
         """
         # todo: 翻译提示词
+        if not isinstance(params, dict):
+            return json.loads(params.model_dump_json())
         return params
 
     def optimize_prompt(self, params: Any) -> Any:
@@ -39,6 +42,8 @@ class PreProcess:
         :return:
         """
         # todo: 优化提示词
+        if not isinstance(params, dict):
+            return json.loads(params.model_dump_json())
         return params
 
     def upload_images(self, params: Any, image_map_list: list) -> Any:

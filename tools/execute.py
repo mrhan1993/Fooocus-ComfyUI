@@ -15,6 +15,14 @@ from tools.logger import common_logger
 
 
 class WebSocketManager:
+    """
+    A context manager for managing a websocket connection.
+    Usage:
+        with WebSocketManager("ws://localhost:8000") as ws:
+            ws.send("Hello, world!")
+            result = ws.recv()
+            print(result)
+    """
     def __init__(self, url):
         self.url = url
         self.ws_client = None

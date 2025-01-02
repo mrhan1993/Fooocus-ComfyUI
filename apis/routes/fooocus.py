@@ -26,7 +26,7 @@ fooocus_router = APIRouter()
     tags=["Fooocus"])
 async def text_to_image(request: CommonRequest):
     """Text to image"""
-    return run_task.delay(request, 'fooocus').id
+    return run_task.delay(request.model_dump_json(), 'fooocus', 'default').id
 
 @fooocus_router.post(
     path="/apis/v1/fooocus/image-upscale-vary",
