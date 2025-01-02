@@ -11,18 +11,17 @@ from apis.main import app
 # config.plugin_fastapi_collect_http_params = True
 # agent.start()
 
+command = ["celery", "-A", "works.main", "worker", "--loglevel=INFO", "-c", "3"]
 
 
-# command = ["celery", "-A", "works.main", "worker", "--loglevel=INFO", "-P", "eventlet", "-c", "3"]
-#
-# # 打开或创建一个文件来存储输出
-# with open('logs/celery_worker_output.log', 'a') as output_file, \
-#         open('logs/celery_worker_error.log', 'a') as error_file:
-#     # 使用 Popen 启动进程，并将 stdout 和 stderr 重定向到文件
-#     process = subprocess.Popen(
-#         command,
-#         stdout=output_file,
-#         stderr=error_file
-#     )
+# 打开或创建一个文件来存储输出
+with open('logs/celery_worker_output.log', 'a', encoding='utf-8') as output_file, \
+        open('logs/celery_worker_error.log', 'a', encoding='utf-8') as error_file:
+    # 使用 Popen 启动进程，并将 stdout 和 stderr 重定向到文件
+    process = subprocess.Popen(
+        command,
+        stdout=output_file,
+        stderr=error_file
+    )
 
 uvicorn.run(app, host="0.0.0.0", port=8000)
