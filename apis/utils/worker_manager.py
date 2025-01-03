@@ -1,8 +1,9 @@
 import json
 
 import redis
+
+from apis.models.remote_host import RemoteHostsDB, RemoteHostDB
 from configs.celery_conf import broker_url
-from apis.models.remote_host import RemoteHost, RemoteHosts
 from tools.logger import common_logger
 
 
@@ -10,7 +11,7 @@ class WorkerManager:
     def __init__(self):
         self.__conn = redis.Redis.from_url(broker_url)
 
-    def add_update_worker(self, remote_host: RemoteHost) -> dict:
+    def add_update_worker(self, remote_host: RemoteHostDB) -> dict:
         """
         Add or update worker.
         :param remote_host: RemoteHost object
@@ -24,7 +25,7 @@ class WorkerManager:
             common_logger.error(f"[Common] 添加/更新主机 {remote_host.host_name} 失败，错误信息为：{e}")
             return {"host": remote_host.model_dump(), "result": False}
 
-    def get_workers(self, host_name: str = "all") -> RemoteHosts:
+    def get_workers(self, host_name: str = "all") -> RemoteHostsDB:
         """
         Get worker.
         :param host_name: Get host for given name, 'all' for all
@@ -33,15 +34,15 @@ class WorkerManager:
         if host_name != "all":
             res = self.__conn.hget("workers", host_name)
             if res is None:
-                return RemoteHosts(hosts=[])
+                return RemoteHostsDB(hosts=[])
             host = json.loads(self.__conn.hget("workers", host_name).decode())
-            RemoteHost(**host)
-            return RemoteHosts(hosts=[host])
+            RemoteHostDB(**host)
+            return RemoteHostsDB(hosts=[host])
         hosts = []
         res = self.__conn.hgetall("workers")
         for k, v in res.items():
             hosts.append(json.loads(v.decode()))
-        return RemoteHosts(**{"hosts": hosts})
+        return RemoteHostsDB(**{"hosts": hosts})
 
     def remove_worker(self, host_name: str) -> bool:
         """

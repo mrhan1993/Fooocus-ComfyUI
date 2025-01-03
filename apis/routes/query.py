@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from celery.result import AsyncResult
-from apis.models.remote_host import RemoteHosts
+from apis.models.remote_host import RemoteHosts, RemoteHostDB, RemoteHostsDB
 from apis.models.settings import Settings
 from apis.utils.worker_manager import manager
 from apis.utils.setting import setting_manager
@@ -22,7 +22,8 @@ async def query_task(task_id: str):
 async def add_worker(remote_hosts: RemoteHosts) -> list:
     result = []
     for host in remote_hosts.hosts:
-        result.append(manager.add_update_worker(host))
+        host_db = RemoteHostDB(**host.model_dump())
+        result.append(manager.add_update_worker(host_db))
     return result
 
 
@@ -32,7 +33,7 @@ async def add_worker(remote_hosts: RemoteHosts) -> list:
     response_model=RemoteHosts,
     tags=["Setting"]
 )
-async def get_workers(host_name: str = "all") -> RemoteHosts:
+async def get_workers(host_name: str = "all") -> RemoteHostsDB:
     return manager.get_workers(host_name)
 
 

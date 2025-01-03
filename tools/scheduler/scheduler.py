@@ -1,7 +1,7 @@
-from apis.models.remote_host import RemoteHost, FilterHost, RemoteHosts
+from apis.models.remote_host import FilterHost, RemoteHostsDB, RemoteHostDB
 
 
-def filter_hosts(hosts: RemoteHosts, conditions: FilterHost) -> list[RemoteHost]:
+def filter_hosts(hosts: RemoteHostsDB, conditions: FilterHost) -> list[RemoteHostDB]:
     """
     根据给定的条件筛选主机列表，返回符合条件的主机列表。
     挑选逻辑：
@@ -26,6 +26,8 @@ def filter_hosts(hosts: RemoteHosts, conditions: FilterHost) -> list[RemoteHost]
     # 如果没有提供 host_name 或 host_ip，则根据其他条件筛选
     filtered_hosts = []
     for host in hosts.hosts:
+        if not host.alive:
+            continue
         match = True
         for key, value in conditions.items():
             if key in ['video_ram', 'memory', 'cpu_cores', 'flops']:

@@ -1,4 +1,5 @@
 import json
+import socket
 
 from apis.models.requests import CommonRequest
 from apis.utils.worker_manager import manager
@@ -8,7 +9,7 @@ from workflows.read_workflow import Workflow
 from works.main import app
 
 
-@app.task()
+@app.task
 def run_task(
         params: str,
         task_type: str,
@@ -33,3 +34,30 @@ def run_task(
     result = work_flow.run_task()
 
     return {"status": "Success", "msg": "The task is executed successfully.", "result": result}
+
+
+@app.task
+def check_worker():
+    """
+    Check the worker is available.
+    :return: None
+    """
+    hosts = manager.get_workers()
+    if len(hosts.hosts) == 0:
+        return
+
+    for host in hosts.hosts:
+        ip_addr = host.host_ip
+        port = host.host_port
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.settimeout(3)
+            r = s.connect_ex((ip_addr, port))
+            s.close()
+            if r != 0:
+                raise Exception(f"连接 {ip_addr}:{port} 失败")
+            host.alive = True
+            manager.add_update_worker(host)
+        except Exception as e:
+            host.alive = False
+            manager.add_update_worker(host)
