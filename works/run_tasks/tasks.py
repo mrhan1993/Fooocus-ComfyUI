@@ -1,5 +1,6 @@
 import json
 import socket
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from apis.models.requests import CommonRequest
 from apis.utils.worker_manager import manager
@@ -36,7 +37,7 @@ def run_task(
     return {"status": "Success", "msg": "The task is executed successfully.", "result": result}
 
 
-@app.task
+@app.task(ignore_result=True)
 def check_worker():
     """
     Check the worker is available.
@@ -46,7 +47,7 @@ def check_worker():
     if len(hosts.hosts) == 0:
         return
 
-    for host in hosts.hosts:
+    def check(host):
         ip_addr = host.host_ip
         port = host.host_port
         try:
@@ -58,6 +59,11 @@ def check_worker():
                 raise Exception(f"连接 {ip_addr}:{port} 失败")
             host.alive = True
             manager.add_update_worker(host)
-        except Exception as e:
+        except Exception:
             host.alive = False
             manager.add_update_worker(host)
+
+    with ThreadPoolExecutor(max_workers=24) as executor:
+        futures = [executor.submit(check, host) for host in hosts.hosts]
+        for future in as_completed(futures):
+            pass

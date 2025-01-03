@@ -11,3 +11,10 @@ app = Celery(main='tasks',
              ])
 
 app.config_from_object('configs.celery_conf')
+app.conf.beat_schedule = {
+    'check_worker_every_60s': {
+        'task': 'works.run_tasks.tasks.check_worker',
+        'schedule': 60.0,
+        'args': ()
+    }
+}
