@@ -26,7 +26,7 @@ def filter_hosts(hosts: RemoteHostsDB, conditions: FilterHost) -> list[RemoteHos
     # 如果没有提供 host_name 或 host_ip，则根据其他条件筛选
     filtered_hosts = []
     for host in hosts.hosts:
-        if not host.alive:
+        if not host.alive or not host.enabled:
             continue
         match = True
         for key, value in conditions.items():

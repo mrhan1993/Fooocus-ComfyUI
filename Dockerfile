@@ -4,7 +4,8 @@ WORKDIR /app
 
 COPY . /app
 
-RUN apt update && \
+RUN chmod +x docker-entrypoint.sh && \
+    apt update && \
     apt install -y --no-install-recommends \
     g++ && apt clean
 
@@ -13,4 +14,5 @@ RUN pip config set global.index-url https://mirrors.tuna.tsinghua.edu.cn/pypi/we
 
 EXPOSE 8000
 
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["python", "run.py"]

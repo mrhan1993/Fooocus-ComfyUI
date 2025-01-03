@@ -57,11 +57,13 @@ def check_worker():
             s.close()
             if r != 0:
                 raise Exception(f"连接 {ip_addr}:{port} 失败")
-            host.alive = True
-            manager.add_update_worker(host)
+            if not host.alive:
+                host.alive = True
+                manager.add_update_worker(host)
         except Exception:
-            host.alive = False
-            manager.add_update_worker(host)
+            if host.alive:
+                host.alive = False
+                manager.add_update_worker(host)
 
     with ThreadPoolExecutor(max_workers=24) as executor:
         futures = [executor.submit(check, host) for host in hosts.hosts]
