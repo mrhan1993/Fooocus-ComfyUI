@@ -97,6 +97,15 @@ pip install requirements.txt
 
 > 默认端口 8000, 默认绑定所有 IP
 
+### 使用 Docker
+
+```shell
+docker build -t IMAGE_NAME:TAG
+docker run -p 8000:8000 IMAGE_NAME:TAG
+```
+
+容器工作目录位于 `/app`, 可以根据需要使用 `-v $(pwd):/app` 映射程序目录
+
 # 配置
 
 在浏览器访问 `http://host:port/docs`, 以查看接口文档
