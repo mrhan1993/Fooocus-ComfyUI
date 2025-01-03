@@ -7,3 +7,4 @@ temp
 tests
 /configs/translate_conf.py
 demo.py
+celerybeat-schedule.*

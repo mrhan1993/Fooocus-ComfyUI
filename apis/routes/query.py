@@ -45,7 +45,7 @@ async def get_workers(host_name: str = "all") -> RemoteHostsDB:
 async def remove_worker(host_name: str) -> bool:
     return manager.remove_worker(host_name)
 
-@query_route.get(
+@query_route.post(
     path="/apis/v1/save_setting",
     summary="Save setting to the system",
     tags=["Setting"]
