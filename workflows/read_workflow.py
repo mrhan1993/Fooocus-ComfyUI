@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 import uuid
@@ -55,9 +56,10 @@ class Workflow:
         """
         # parsed_params, image_map_list = self.__pre_process.pre_process(self.params)
         translated_params = self.__pre_process.translate(self.params)
-        parsed_params = self.__pre_process.optimize_prompt(translated_params)
+        optimize_prompt = self.__pre_process.optimize_prompt(translated_params)
+        parsed_params = copy.deepcopy(optimize_prompt)
 
-        uploaded_params, image_map_list = self.__pre_process.upload_images(parsed_params, [])
+        uploaded_params, image_map_list = self.__pre_process.upload_images(optimize_prompt, [])
 
         image_number = parsed_params.get("image_number")
         parsed_params["image_number"] = 1
@@ -120,7 +122,7 @@ class Workflow:
 
 
         max_retries = 3
-        def execute_task_with_retry(task, retries=0):
+        def execute_task_with_retry(task, retries=3):
             """
             执行单个任务并支持重试
             :param task: 任务对象
@@ -141,7 +143,7 @@ class Workflow:
 
         try:
             with ThreadPoolExecutor(max_workers=image_number) as executor:
-                wrapped_execute_task = partial(execute_task_with_retry, retries=0)
+                wrapped_execute_task = partial(execute_task_with_retry, retries=3)
                 futures = [executor.submit(wrapped_execute_task, task) for task in tasks]
                 results = [future.result() for future in futures]
         except Exception as pool_exception:

@@ -2,7 +2,7 @@ import json
 import socket
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-from apis.models.requests import CommonRequest
+from apis.models.requests import FooocusParams
 from apis.utils.worker_manager import manager
 from apis.utils.setting import setting_manager
 from tools.scheduler.scheduler import filter_hosts
@@ -23,7 +23,8 @@ def run_task(
     :param setting_id: The id of the setting.
     :return: The result of the task.
     """
-    params = CommonRequest(**json.loads(params))
+    if task_type.lower() == "fooocus":
+        params = FooocusParams(**json.loads(params))
     hosts = manager.get_workers()
     exec_hosts = filter_hosts(hosts, params.filter_hosts)
     setting = setting_manager.get_setting(setting_id)

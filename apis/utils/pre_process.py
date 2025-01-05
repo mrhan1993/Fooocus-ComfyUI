@@ -59,7 +59,6 @@ class PreProcess:
             for key, value in params.items():
                 processed_value, image_map_list = self.upload_images(value, image_map_list)
                 params[key] = processed_value
-            params['image_map_list'] = image_map_list
             return params, image_map_list
         elif isinstance(params, list):
             processed_list = []

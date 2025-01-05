@@ -34,7 +34,7 @@ async def text_to_image(request: CommonRequest):
     tags=["Fooocus"])
 async def upscale_vary(request: UpscaleVary):
     """Upscale or vary"""
-    return run_task.delay(request, 'fooocus').id
+    return run_task.delay(request.model_dump_json(), 'fooocus', 'default').id
 
 @fooocus_router.post(
     path="/apis/v1/fooocus/inpaint-outpaint",
@@ -42,7 +42,7 @@ async def upscale_vary(request: UpscaleVary):
     tags=["Fooocus"])
 async def inpaint_outpaint(request: InpaintOutpaint):
     """Inpaint outpaint"""
-    return run_task.delay(request, 'fooocus').id
+    return run_task.delay(request.model_dump_json(), 'fooocus', 'default').id
 
 @fooocus_router.post(
     path="/apis/v1/fooocus/image-prompt",
@@ -50,7 +50,7 @@ async def inpaint_outpaint(request: InpaintOutpaint):
     tags=["Fooocus"])
 async def image_prompt(request: ImagePrompt):
     """Image Prompt"""
-    return run_task.delay(request, 'fooocus').id
+    return run_task.delay(request.model_dump_json(), 'fooocus', 'default').id
 
 @fooocus_router.post(
     path="/apis/v1/fooocus/image-enhance",
@@ -58,4 +58,4 @@ async def image_prompt(request: ImagePrompt):
     tags=["Fooocus"])
 async def image_enhance(request: ImageEnhance):
     """Image Enhance"""
-    return run_task.delay(request, 'fooocus').id
+    return run_task.delay(request.model_dump_json(), 'fooocus', 'default').id

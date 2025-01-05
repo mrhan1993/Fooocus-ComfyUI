@@ -133,6 +133,10 @@ class ImageEnhance(CommonRequest):
     dino_erode_or_dilate: int = Field(default=0, ge=-64, le=64, description="DINO Erode or Dilate")
 
 
+class FooocusParams(InpaintOutpaint, UpscaleVary, ImageEnhance):
+    pass
+
+
 class DescribeImageRequest(BaseModel):
     image: str = Field(description="Image url or base64")
     image_type: DescribeImageType = Field(default=DescribeImageType.photo, description="Image type, 'Photo' or 'Anime'")
