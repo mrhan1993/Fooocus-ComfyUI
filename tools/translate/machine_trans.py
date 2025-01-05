@@ -24,7 +24,7 @@ def is_english(text: str) -> bool:
     """
     try:
         return detect(text) == 'en'
-    except:
+    except Exception:
         return False
 
 class TencentTranslateClient:
@@ -34,7 +34,6 @@ class TencentTranslateClient:
         @param config: 公共配置
         @throws Exception
         """
-        self.__config = config
         try:
             cred = credential.Credential(config.access_key_id, config.access_key_secret)
             http_profile = HttpProfile()
@@ -75,7 +74,6 @@ class AliTranslateClient:
         @throws Exception
         Endpoint 请参考 https://api.aliyun.com/product/alimt
         """
-        self.__config = config
         try:
             trans_config = open_api_models.Config(
                 access_key_id=config.access_key_id,
@@ -127,7 +125,7 @@ class BaiduTranslateClient:
 
         # Send request
         try:
-            r = requests.post(self.__url, params=payload, headers=headers)
+            r = requests.post(self.__url, params=payload, headers=headers, timeout=30)
             result = r.json()
             return result['trans_result'][0]['dst'].lower().strip()
         except Exception as e:

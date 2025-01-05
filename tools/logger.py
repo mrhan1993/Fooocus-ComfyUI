@@ -16,7 +16,7 @@ class Logger:
         try:
             os.makedirs(log_dir, exist_ok=True)
         except Exception as e:
-            raise RuntimeError(f"Failed to create log directory {log_dir}: {e}")
+            raise RuntimeError(f'Failed to create log directory {log_dir}: {e}') from e
 
         self.logger = logging.getLogger(log_name)
         self.logger.setLevel(logging.DEBUG)  # Set to DEBUG to capture all levels

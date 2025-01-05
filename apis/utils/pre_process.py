@@ -6,13 +6,13 @@ from typing import Any
 
 from PIL import Image
 
-from apis.models.settings import OssSetting, Settings
 from tools.utils import GlobalMemory
+from tools.store.oss_client import OssClient
+from apis.models.settings import Settings
 from apis.utils.img_utils import (
     base64_to_bytesimg,
     get_ext_from_bytes
 )
-from tools.store.oss_client import OssClient
 
 
 memory = GlobalMemory()

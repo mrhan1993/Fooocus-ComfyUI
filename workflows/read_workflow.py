@@ -42,7 +42,7 @@ class Workflow:
         self.task_type = task_type
         self.exec_hosts = exec_hosts
         try:
-            with open(os.path.join(cur_dir, f"{task_type}.json"), "r") as f:
+            with open(os.path.join(cur_dir, f"{task_type}.json"), "r", encoding='utf-8') as f:
                 self.flow = json.load(f)
         except Exception as e:
             common_logger.error(f"[Execute] 读取工作流 {task_type}.json 文件失败，错误信息为：{e}")
@@ -82,7 +82,6 @@ class Workflow:
         exec_host = get_host_status(self.exec_hosts)
         return min(exec_host, key=lambda x: x.queue.get("queue_pending"))
 
-
     def __post_upload(self, results: list) -> list:
         """
         上传结果
@@ -108,8 +107,10 @@ class Workflow:
 
         return images
 
-
     def run_task(self):
+        """
+        执行工作流
+        """
         parsed_param = self.__parse_param()
         workflow = parsed_param.get("workflow")
         image_map_list = parsed_param.get("image_map_list")

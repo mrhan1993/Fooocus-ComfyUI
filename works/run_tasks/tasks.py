@@ -56,7 +56,7 @@ def check_worker():
             r = s.connect_ex((ip_addr, port))
             s.close()
             if r != 0:
-                raise Exception(f"连接 {ip_addr}:{port} 失败")
+                raise ConnectionError(f"连接 {ip_addr}:{port} 失败")
             if not host.alive:
                 host.alive = True
                 manager.add_update_worker(host)

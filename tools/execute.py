@@ -60,6 +60,7 @@ class Execute:
             return response.json()
         except Exception as e:
             common_logger.error(f"[Execute] Error executing prompt: {e}")
+            return None
 
     def get_image(self, filename: str, subfolder: str, folder_type: str) -> bytes:
         """
@@ -72,11 +73,12 @@ class Execute:
         url = f"http://{self.server_address}/view"
         params = {"filename": filename, "subfolder": subfolder, "type": folder_type}
         try:
-            response = requests.get(url, params=params)
+            response = requests.get(url, params=params, timeout=5)
             response.raise_for_status()
             return response.content
         except Exception as e:
             common_logger.error(f"[Execute] Error getting image: {e}")
+            return None
 
     def get_history(self, prompt_id: str) -> Dict:
         """
@@ -86,11 +88,12 @@ class Execute:
         """
         url = f"http://{self.server_address}/history/{prompt_id}"
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=5)
             response.raise_for_status()
             return response.json()
         except Exception as e:
             common_logger.error(f"[Execute] Error getting history: {e}")
+            return None
 
     def get_images(self, ws: websocket.WebSocket, prompt: Dict) -> bytes | None:
         """

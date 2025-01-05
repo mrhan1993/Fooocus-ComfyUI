@@ -20,7 +20,6 @@ class OssClient:
         """初始化OSS客户端
         :param config: 配置文件，应该包含各个服务商的配置信息，根据服务商不同，配置信息不同
         """
-        self.__config = config
         if config.choice.value not in self.SUPPORTED_SERVICES:
             raise ValueError(f"Unsupported service: {config.choice.value}")
 

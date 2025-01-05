@@ -13,7 +13,6 @@ class QcloudOssClient:
             bucket: OSS的bucket名称
             region: OSS的区域，如 ap-shanghai
         """
-        self.__config = config
         self.__bucket = config.bucket
         try:
             cos_config = CosConfig(Region=config.region, SecretId=config.access_key_id, SecretKey=config.access_key_secret)

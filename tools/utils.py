@@ -72,7 +72,7 @@ def get_host_status(hosts: list[RemoteHost]) -> list[RemoteHost]:
     获取主机状态，包括主机信息、任务队列等。
     :return: 主机状态列表
     """
-    state_endpoint = "/system_stats"
+    # state_endpoint = "/system_stats"
     queue_endpoint = "/queue"
 
     results = []
@@ -80,7 +80,7 @@ def get_host_status(hosts: list[RemoteHost]) -> list[RemoteHost]:
         url = f"http://{host.host_ip}:{host.host_port}"
         queue_url = f"{url}{queue_endpoint}"
         try:
-            queue_response = requests.get(queue_url)
+            queue_response = requests.get(queue_url, timeout=5)
             queue = json.loads(queue_response.text)
 
             host.queue = {

@@ -40,7 +40,7 @@ class WorkerManager:
             return RemoteHostsDB(hosts=[host])
         hosts = []
         res = self.__conn.hgetall("workers")
-        for k, v in res.items():
+        for _, v in res.items():
             hosts.append(json.loads(v.decode()))
         return RemoteHostsDB(**{"hosts": hosts})
 

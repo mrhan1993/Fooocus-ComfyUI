@@ -20,8 +20,7 @@ def get_ext_from_bytes(file_bytes: bytes) -> str:
     image_type = imghdr.what(None, h=file_bytes)
     if image_type:
         return f"{image_type}"
-    else:
-        return "png"
+    return "png"
 
 
 def convert_image(image_path: str, image_format: str = 'png') -> bytes | None:
@@ -39,8 +38,8 @@ def convert_image(image_path: str, image_format: str = 'png') -> bytes | None:
         img.save(image_bytes, format=image_format.upper())
         image_bytes.seek(0)
     except Exception as e:
-        print(e)
-        return
+        print(f"Convert image error: {e}")
+        return None
     return image_bytes.getvalue()
 
 

@@ -1,6 +1,6 @@
-from openai import OpenAI
 import re
 
+from openai import OpenAI
 from zhipuai import ZhipuAI
 
 from tools.logger import common_logger

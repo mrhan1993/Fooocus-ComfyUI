@@ -12,7 +12,7 @@ from apis.models.base import (
     UpscaleOrVaryMethod,
     OutpaintExpansion
 )
-from apis.models.remote_host import RemoteHost, FilterHost
+from apis.models.remote_host import FilterHost
 
 loras = []
 for i in range(5):
@@ -87,17 +87,17 @@ class CommonRequest(BaseModel):
         ), description="Filter Hosts")
 
 
-class ImagePrompt(CommonRequest):
+class ImagePrompts(CommonRequest):
     controlnet_image: List[ImagePrompt] = Field(default=[ImagePrompt()], description="ControlNet Image Prompt")
 
 
-class UpscaleVary(ImagePrompt):
+class UpscaleVary(ImagePrompts):
     uov_method: UpscaleOrVaryMethod = Field(default=UpscaleOrVaryMethod.disable, description="Upscale or Vary Method")
     uov_input_image: StrictStr | None = Field(default="None", description="Upscale or Vary Input Image")
     upscale_multiple: float = Field(default=1.0, ge=1.0, le=5.0, description="Upscale Rate, use only when uov_method is 'Upscale (Custom)'")
 
 
-class InpaintOutpaint(ImagePrompt):
+class InpaintOutpaint(ImagePrompts):
     inpaint_input_image: StrictStr | None = Field(default="None", description="Inpaint Input Image")
     inpaint_additional_prompt: StrictStr = Field(default="", description="Additional prompt for inpaint")
     inpaint_mask_image_upload: str | None = Field(default="None", description="Inpaint Mask Image Upload")

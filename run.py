@@ -1,5 +1,5 @@
-import uvicorn
 import argparse
+import uvicorn
 
 from apis.main import app
 

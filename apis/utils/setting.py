@@ -35,7 +35,7 @@ class SettingManager:
                 common_logger.error(f"[common] Add or update settings failed, {valid}")
                 return {"result": False, "detail": valid}
             self.__conn.hset("settings", setting.id, setting.model_dump_json())
-            common_logger.info(f"[common] Add or update settings success")
+            common_logger.info("[common] Add or update settings success")
             return {"result": True, "detail": valid}
         except Exception as e:
             common_logger.error(f"[common] Add or update settings failed, message: {e}")

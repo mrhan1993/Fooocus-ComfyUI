@@ -14,7 +14,6 @@ class AliyunOssClient:
             bucket: OSS的bucket名称
             region: OSS的区域，如 cn-beijing
         """
-        self.__config = config
         try:
             auth = oss2.Auth(config.access_key_id, config.access_key_secret)
             self.__bucket = oss2.Bucket(
@@ -23,7 +22,7 @@ class AliyunOssClient:
                 bucket_name=config.bucket,
                 region=config.region
             )
-            common_logger.info(f"[AliyunOss] init success")
+            common_logger.info("[AliyunOss] init success")
         except Exception as e:
             common_logger.error(f"[AliyunOss] init failed: {e}")
 
