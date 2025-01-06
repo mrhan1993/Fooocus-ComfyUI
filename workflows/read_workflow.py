@@ -118,7 +118,7 @@ class Workflow:
         image_map_list = parsed_param.get("image_map_list")
         image_number = parsed_param.get("image_number")
         uploaded_params = parsed_param.get("uploaded_params")
-        tasks = [workflow.copy() for _ in range(image_number)]
+        tasks = [copy.deepcopy(workflow) for _ in range(image_number)]
 
 
         max_retries = 3
@@ -131,7 +131,7 @@ class Workflow:
             """
             try:
                 host = self.__get_exec_hosts()
-                execute = Execute(server_address=f"{host.host_ip}:{host.host_port}")
+                execute = Execute(server_address=f"{host.host_ip}:{host.host_port}", client_id=uuid.uuid4().hex)
                 image = execute.execute(task)
                 return {"status": "success", "message": "任务执行成功", "image": image}
             except Exception as e:
