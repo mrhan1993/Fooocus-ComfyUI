@@ -2,9 +2,10 @@ name: Docker image build
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches:
+      - master
+    tags:
+      - v*
 
 jobs:
   build-and-push-image:
@@ -34,7 +35,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=edge,branch=main
+            type=edge,branch=master
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
